@@ -1,0 +1,47 @@
+// yarn prisma db push => Code first (tạo table bằng model)
+// yarn prisma db pull => Database first (tạo model bằng table)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id    Int    @id @default(autoincrement())
+  email String
+  name  String
+  role  String
+  post  Post[]
+}
+
+// FORIGEN KEY userId REFERENCE User(id)
+model Post {
+  id        Int      @id @default(autoincrement())
+  title     String
+  updatedAt DateTime
+  published DateTime
+
+  authorId       Int
+  user           User             @relation(fields: [authorId], references: [id])
+  categoryToPost CategoryToPost[]
+}
+
+model Category {
+  id             Int              @id @default(autoincrement())
+  name           String
+  categoryToPost CategoryToPost[]
+}
+
+model CategoryToPost {
+  postId     Int
+  categoryId Int
+  post       Post     @relation(fields: [postId], references: [id])
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  @@id([postId, categoryId])
+}
+// db_test
